@@ -55,10 +55,15 @@
 !enable_deal_damage = !ram+$44
 !enable_insta_death = !ram+$46
 !enable_insta_dk_barrel = !ram+$48
+!enable_slippery_trap = !ram+$4A
 !enable_barrel_trap = !ram+$50
 !barrel_trap_timer = !ram+$52
-!at_kong_menu = !collectible_flags-$04
-!teleporting = !collectible_flags-$02
+!enable_honey_trap = !ram+$54
+!honey_trap_timer = !ram+$56
+!death_link_flag = !ram+$58
+!death_link_force = !ram+$5A
+!at_kong_menu = $7FF7E0
+!teleporting = $7FF7E2
 
 !collectible_flags = $7FFF00
 !saved_index = $B88B8D
@@ -150,6 +155,12 @@ if !debug == 0
         setting_freeze_trap:
             skip 1
         setting_reverse_trap:
+            skip 1
+        setting_honey_trap:
+            skip 1
+        setting_ice_trap:
+            skip 1
+        setting_tnt_barrel_trap:
             skip 1
         setting_damage_trap:
             skip 1

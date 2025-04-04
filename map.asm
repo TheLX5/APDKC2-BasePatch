@@ -81,6 +81,10 @@ pullpc
 
 lock_map:
         jsl $B5801E
+        lda #$0000
+        sta !honey_trap_timer
+        sta !death_link_flag
+        sta !death_link_force
     .check_submaps
         lda $06AB
         cmp #$0007

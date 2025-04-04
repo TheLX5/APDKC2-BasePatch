@@ -15,7 +15,7 @@ class TriviaQuestion():
 def filter_characters(string: str):
     string = string.lower()
     string = string.replace(" -", "")
-    f = "!#$%&/()+-/'"
+    f = "!#$%&/()+-/':"
     for char in f:
         string = string.replace(char, "")
     string = string.replace(" ", "_")
@@ -47,7 +47,7 @@ for category in result_categories:
 
 dict_result = {}
 
-for category in set(category_names):
+for category in sorted(set(category_names)):
     dict_result[f"trivia_easy_{category}"] = list()
     dict_result[f"trivia_medium_{category}"] = list()
     dict_result[f"trivia_hard_{category}"] = list()
@@ -358,7 +358,7 @@ with open("A:/Archipelago/worlds/dkc2/data/Trivia.py", "w", encoding="utf-8") as
         r += f"]\n\n"
 
     r += f'''\ntrivia_data = {{\n'''
-    for key, value in dict_categories.items():
+    for key, value in sorted(dict_categories.items()):
         r += f'''{'':>4}"{key}": [\n{'':>8}trivia_easy_{value}, \n{'':>8}trivia_medium_{value}, \n{'':>8}trivia_hard_{value},\n{'':>4}],\n'''
     r += '}\n\n'
 

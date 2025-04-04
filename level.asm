@@ -51,6 +51,7 @@ level_main:
         cmp #$00B9
         beq ..return
         lda !teleporting
+        and #$00FF
         ora $0A38
         bne ..return
         lda !diddy_control+$14
@@ -91,6 +92,10 @@ level_main:
         jsr handle_reverse
     ..skip
 
+    .spawn_honey
+        jsr handle_honey_trap
+        jsr handle_slippery_trap
+
     .spawn_enemies
         ldx $92
         lda.l .valid_actions,x
@@ -105,6 +110,8 @@ level_main:
         and #$0010
         beq .barrel_skip
 
+        jsr handle_death_link
+        bcs .barrel_skip
         jsr handle_insta_death
         bcs .barrel_skip
         jsr handle_deal_damage
@@ -192,8 +199,12 @@ handle_freeze:
     .code_B881BB
         lda #$0013
         sta $091F
+        pei ($64)
         ldx $68
-        stz $00,x
+        stx $64
+        jsl $BB82B8
+        pla 
+        sta $64
     +   
         rts 
 
@@ -207,6 +218,22 @@ handle_deal_damage:
         pea.w $81BA-$01
         jml $b88ca3
     .code_B881BB
+        sec 
+        rts 
+    +   
+        clc 
+        rts 
+
+handle_death_link:
+        lda !death_link_force
+        beq +
+        lda #$0000
+        sta !death_link_force
+        phk 
+        pea.w .code_B881BB1-$01
+        pea.w $81BA-$01
+        jml $B88C9D
+    .code_B881BB1
         sec 
         rts 
     +   
@@ -229,11 +256,51 @@ handle_insta_death:
         clc 
         rts 
 
-handle_spawn_dk_barrel:
-        lda !enable_insta_dk_barrel
+handle_slippery_trap:
+        lda $052B
+        and #$3000
+        cmp #$3000
+        beq +
+        lda !enable_slippery_trap
         beq +
         dec 
-        sta !enable_insta_dk_barrel
+        sta !enable_slippery_trap
+        lda #$3000 ; ice
+        tsb $052B
+        lda #$0624
+        jsl $B58003
+    +   
+        rts 
+
+handle_honey_trap:
+        lda !honey_trap_timer
+        bne +
+        lda !enable_honey_trap
+        beq +
+        dec 
+        sta !enable_honey_trap
+        lda.w #20
+        sta !honey_trap_timer
+        lda #$0800
+        tsb $052B   ; honey
+        lda #$0624
+        jsl $B58003
+    +   
+        rts 
+
+handle_spawn_dk_barrel:
+        lda !enable_dk_barrels
+        and #$0003
+        cmp #$0003
+        bne .return
+        
+        lda $0510
+        and #$0030
+        beq .return
+
+        lda !enable_insta_dk_barrel
+        beq .return
+        
         ldy #$2216
         jsl $BB8432
         ldx $0593
@@ -242,7 +309,10 @@ handle_spawn_dk_barrel:
         sta $0006,y
         lda $000A,x
         sta $000A,y
-    +
+        lda !enable_insta_dk_barrel
+        dec 
+        sta !enable_insta_dk_barrel
+    .return
         rts 
 
 handle_barrel_trap:
@@ -254,27 +324,100 @@ handle_barrel_trap:
     .valid
         lda !enable_barrel_trap
         beq .return
-        dec 
-        sta !enable_barrel_trap
-        lda #$0030
-        sta !barrel_trap_timer
         ldy.w #tnt_barrel_trap
         jsl $BB8432
         ldx $0593
         ldy $68
-        lda $0006,x
+        lda $06,x
         clc 
         adc #$0004
         sta $0006,y
-        lda $000A,x
+        ;lda $000A,x
+        lda $0AE3
         sec 
-        sbc #$00C0
+        sbc #$0010
         sta $000A,y
-        lda #$0021
+        lda #$0046
         sta $0030,y
+        tya 
+        sta $004C,y
+        lda #$0000
+        sta $0020,y
+        lda #$0615
+        jsl $B58003
+        lda.w #0180
+        sta !barrel_trap_timer
+        lda !enable_barrel_trap
+        dec 
+        sta !enable_barrel_trap
     .return
         rts 
 
+sprite_in_water:
+        lda $0D4E
+        bpl .has_water
+    .above_water
+        clc  
+        rtl 
+    .has_water 
+        clc 
+        adc #$0010
+        cmp $0A,x
+        bcs .above_water
+        sec 
+        rtl 
+
+pushpc
+    org $B3D318
+        jml tnt_barrel_edit
+pullpc
+
+tnt_barrel_edit:
+        ldx $64
+        lda $2E,x
+        cmp #$0001
+        bne .not_tnt
+        stz $20,x
+        lda #$0640
+        sta $24,x
+        jsl sprite_in_water
+        bcc +
+        lda #$01E0
+        sta $24,x
+    +   
+        lda $4C,x
+        cmp $64
+        bne .not_tnt
+        jsl $B8CF7F
+        ldy $0593
+        lda $0A,x
+        lda $000A,y
+        cmp $0A,x
+        bcc .enable_terrain_interaction
+        jml $B3D325
+    .enable_terrain_interaction
+        stz $4C,x
+        jml $B3D325
+    .not_tnt
+        jsl $B8D5E0
+        jml $B3D31C
+
+pushpc
+    org $B8B668
+        jml honey_edit
+pullpc
+
+honey_edit:
+        lda !honey_trap_timer
+        bne .sticky
+    .not_sticky
+        lda $10,x
+        and #$0200
+        jml $B8B66D
+    .sticky
+        dec 
+        sta !honey_trap_timer
+        jml $B8B66F
 
 pushpc
     ;# Skip demo load
@@ -333,6 +476,7 @@ pushpc
     org $BBF846
         new_sprite_pointers:
             dw no_squawks_o_kong        ; 1046
+            dw tnt_barrel_trap          ; 1048
 
     org $FFFF3A
         new_sprite_inits:
@@ -347,5 +491,6 @@ pushpc
                 dw !initcommand_set_animation, $02FF
                 dw !initcommand_set_alt_palette, $0002
                 dw sprite.state, $0001
+                dw sprite.interaction_flags, $0021
                 dw !initcommand_success
 pullpc

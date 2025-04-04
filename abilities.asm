@@ -1,6 +1,6 @@
 
 pushpc
-    org $808E11
+    org $808E14
         jsl handle_starting_kong
     org $B4912F
         jsl handle_starting_kong
@@ -8,13 +8,29 @@ pushpc
         jsl handle_starting_kong
     org $808FC2
         jsl handle_starting_kong
+    org $808D96
+        jsl handle_starting_kong
+    org $808EF6
+        jsl handle_starting_kong
 pullpc
 
 handle_starting_kong:
-        lda.l handle_starting_kong
-        and #$0002
-        dec 
+        lda.l setting_starting_kong
+        and #$0003
+        asl 
+        phx 
+        tax 
+        lda.l .kongs,x
+        plx 
+        pha 
+        pla 
         jml $808837
+
+    .kongs
+        dw $0000    ; Diddy
+        dw $0000    ; Diddy
+        dw $0001    ; Dixie
+        dw $0000    ; Diddy + Dixie
 
 ;#######################################################
 ;# Disables DK barrels from being interacted with
@@ -880,3 +896,38 @@ handle_invincibility_barrels:
     .not_available
         pla 
         rtl 
+
+
+;#######################################################
+;# Reset some RAM 
+
+pushpc
+    org $B88CA3
+        jml reset_on_hurt
+    org $B8899C
+        jml reset_on_hurt_blunderbuss
+pullpc
+
+reset_on_hurt:
+        lda #$0000
+        sta !honey_trap_timer
+        phk 
+        pea.w .code_B880BC-$01
+        pea.w $81BA-$01
+        jml $B880BC
+    .code_B880BC
+        phk 
+        pea.w .code_B88C50-$01
+        pea.w $81BA-$01
+        jml $B88C50
+    .code_B88C50
+        jml $B88CA9
+
+    .blunderbuss
+        lda #$0000
+        sta !honey_trap_timer
+        lda $08C2
+        bmi +
+        jml $B889A1
+    +   
+        jml $B88A00

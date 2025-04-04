@@ -32,7 +32,7 @@ balloon_locations:
         rep #$20
         ;lda $D3
         ;wdm 
-        rep #$20
+        ;rep #$20
         plx 
     .skip
         rtl 
