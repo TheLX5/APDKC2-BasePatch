@@ -16,6 +16,14 @@ pushpc
         db $04
 pullpc
 
+macro jslrts(routine, rtl)
+        phk
+        pea.w ?jslrtsreturn-1
+        pea.w <rtl>-1
+        jml <routine>
+    ?jslrtsreturn:
+endmacro
+
 org $FDDC00
     ;incsrc "init.asm"
     incsrc "save.asm"
@@ -25,8 +33,10 @@ org $FDDC00
     incsrc "level.asm"
     incsrc "hints.asm"
     incsrc "locations.asm"
+    incsrc "credits.asm"
+    incsrc "title.asm"
     print "$", hex(pc()), "/$FDFF7F"
-    assert pc() <= $FDFF80
+    assert pc() <= $FDFF00
 
 if !debug == 1
     org $FDFF80
@@ -78,4 +88,68 @@ if !debug == 1
             db $00
         setting_krock_boss_tokens:
             db $05
+    org $FDFF00
+        required_galleon_levels:
+            dw $0001
+        required_cauldron_levels:
+            dw $0001
+        required_quay_levels:
+            dw $0001
+        required_kremland_levels:
+            dw $0001
+        required_gulch_levels:
+            dw $0001
+        required_keep_levels:
+            dw $0001
+        required_krock_levels:
+            dw $0001
+        galleon_levels:
+            dw $0000
+            dw $0000
+            dw $0000
+            dw $0000
+            dw $0000
+            dw $0000
+        cauldron_levels:
+            dw $0000
+            dw $0000
+            dw $0000
+            dw $0000
+            dw $0000
+            dw $0000
+        quay_levels:
+            dw $0000
+            dw $0000
+            dw $0000
+            dw $0000
+            dw $0000
+            dw $0000
+            dw $0000
+        kremland_levels:
+            dw $0000
+            dw $0000
+            dw $0000
+            dw $0000
+            dw $0000
+            dw $0000
+            dw $0000
+        gulch_levels:
+            dw $0000
+            dw $0000
+            dw $0000
+            dw $0000
+            dw $0000
+            dw $0000
+        keep_levels:
+            dw $0000
+            dw $0000
+            dw $0000
+            dw $0000
+            dw $0000
+            dw $0000
+            dw $0000
+        krock_levels:
+            dw $0000
+            dw $0000
+        print pc
 endif

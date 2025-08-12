@@ -62,8 +62,28 @@
 !honey_trap_timer = !ram+$56
 !death_link_flag = !ram+$58
 !death_link_force = !ram+$5A
+!extra_hit_active = !ram+$5C
+!enable_jump = !ram+$60
+!enable_jump_timer = !ram+$62
+!show_hit_counter = !ram+$64
+!reward_type = !ram+$66
 !at_kong_menu = $7FF7E0
 !teleporting = $7FF7E2
+!display_message_is_tracker = $7FF7E4
+!display_message_rerun = $7FF7EE
+!display_message_phase = $7FF7F0
+!display_message_irq_fire = $7FF7F4
+!display_message_y_pos = $7FF7F2
+!backup_vram_slot = $7FF7FA
+!display_message_activate = $7FF7F6
+!display_message_timer = $7FF7F8
+!vram_index = $7FF7FE
+!palette_backup_data = $7FF780
+!dma_settings_backup = $7FF740
+!text_buffer = $7FF600
+!palette_buffer = $7FF5C0
+!reg_backup = !ram+$100
+!vram_backup = $7FF900
 
 !collectible_flags = $7FFF00
 !saved_index = $B88B8D
@@ -166,6 +186,36 @@ if !debug == 0
             skip 1
         setting_insta_death_trap:
             skip 1
+    org $FDFF00
+        required_galleon_levels:
+            skip 2
+        required_cauldron_levels:
+            skip 2
+        required_quay_levels:
+            skip 2
+        required_kremland_levels:
+            skip 2
+        required_gulch_levels:
+            skip 2
+        required_keep_levels:
+            skip 2
+        required_krock_levels:
+            skip 2
+        galleon_levels:
+            skip 12
+        cauldron_levels:
+            skip 12
+        quay_levels:
+            skip 14
+        kremland_levels:
+            skip 14
+        gulch_levels:
+            skip 12
+        keep_levels:
+            skip 14
+        krock_levels:
+            skip 4
+        print pc
 endif
 
 

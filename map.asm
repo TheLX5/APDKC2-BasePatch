@@ -10,6 +10,10 @@ pushpc
     ;    lda.w #$5555
     ;org $b4b315
     ;    lda.w #$5555
+
+    ;# Disable Cranky on map with L/R after beating everything
+    org $B48795
+        db $80
 pullpc
 
 ;# $B5D3E7 enters levels
@@ -85,6 +89,8 @@ lock_map:
         sta !honey_trap_timer
         sta !death_link_flag
         sta !death_link_force
+        lda #$0078
+        sta !show_hit_counter
     .check_submaps
         lda $06AB
         cmp #$0007
@@ -109,6 +115,7 @@ lock_map:
         plx 
         and #$00FF
         bne .unlocked
+    .locked_play_sound
         lda $0510
         and #$D0C0
         beq .locked
@@ -128,7 +135,8 @@ lock_map:
         beq .found_kore
         dex #2
         bpl .loop
-        bra .unlocked
+        jmp .process_bosses
+        ;bra .unlocked
     .found_kore
         jsr compute_kore_unlock
         bcc .locked
@@ -140,6 +148,277 @@ lock_map:
         dw $0069 ; Kremland
         dw $006D ; Gulch
         dw $0071 ; Keep
+
+    .process_bosses
+        lda $066E
+        cmp.l galleon_levels
+        bne +
+        jmp .krow
+    +   
+        cmp.l cauldron_levels
+        bne +
+        jmp .kleever
+    +   
+        cmp.l quay_levels
+        bne +
+        jmp .kudgel
+    +   
+        cmp.l kremland_levels
+        bne +
+        jmp .king_zing
+    +   
+        cmp.l gulch_levels
+        bne +
+        jmp .kreepy
+    +   
+        cmp.l keep_levels
+        bne +
+        jmp .showdown
+    +   
+        cmp.l krock_levels
+        bne +
+        jmp .duel
+    +   
+        jmp .unlocked
+    
+    .krow
+        ldy #$0000
+        tyx
+    ..loop
+        phx 
+        lda.l galleon_levels+$02,x
+        jsr check_current_level_clear
+        bcc ..incomplete_level
+        iny 
+    ..incomplete_level
+        plx 
+        inx #2
+        cpx.w #10
+        bcc ..loop
+        tya 
+        cmp.l required_galleon_levels
+        bcs ..unlock
+        jmp .locked_play_sound
+    ..unlock
+        jmp .unlocked
+
+
+    .kleever
+        ldy #$0000
+        tyx
+    ..loop
+        phx 
+        lda.l cauldron_levels+$02,x
+        jsr check_current_level_clear
+        bcc ..incomplete_level
+        iny 
+    ..incomplete_level
+        plx 
+        inx #2
+        cpx.w #10
+        bcc ..loop
+        tya 
+        cmp.l required_cauldron_levels
+        bcs ..unlock
+        jmp .locked_play_sound
+    ..unlock
+        jmp .unlocked
+
+
+    .kudgel
+        ldy #$0000
+        tyx
+    ..loop
+        phx 
+        lda.l quay_levels+$02,x
+        jsr check_current_level_clear
+        bcc ..incomplete_level
+        iny 
+    ..incomplete_level
+        plx 
+        inx #2
+        cpx.w #12
+        bcc ..loop
+        tya 
+        cmp.l required_quay_levels
+        bcs ..unlock
+        jmp .locked_play_sound
+    ..unlock
+        jmp .unlocked
+
+
+    .king_zing
+        ldy #$0000
+        tyx
+    ..loop
+        phx 
+        lda.l kremland_levels+$02,x
+        jsr check_current_level_clear
+        bcc ..incomplete_level
+        iny 
+    ..incomplete_level
+        plx 
+        inx #2
+        cpx.w #12
+        bcc ..loop
+        tya 
+        cmp.l required_kremland_levels
+        bcs ..unlock
+        jmp .locked_play_sound
+    ..unlock
+        jmp .unlocked
+
+
+    .kreepy
+        ldy #$0000
+        tyx
+    ..loop
+        phx 
+        lda.l gulch_levels+$02,x
+        jsr check_current_level_clear
+        bcc ..incomplete_level
+        iny 
+    ..incomplete_level
+        plx 
+        inx #2
+        cpx.w #10
+        bcc ..loop
+        tya 
+        cmp.l required_gulch_levels
+        bcs ..unlock
+        jmp .locked_play_sound
+    ..unlock
+        jmp .unlocked
+
+
+    .showdown
+        ldy #$0000
+        tyx
+    ..loop
+        phx 
+        lda.l keep_levels+$02,x
+        jsr check_current_level_clear
+        bcc ..incomplete_level
+        iny 
+    ..incomplete_level
+        plx 
+        inx #2
+        cpx.w #12
+        bcc ..loop
+        tya 
+        cmp.l required_keep_levels
+        bcs ..unlock
+        jmp .locked_play_sound
+    ..unlock
+        jmp .unlocked
+
+
+    .duel
+        ldy #$0000
+        lda.l krock_levels+$02
+        jsr check_current_level_clear
+        bcc ..incomplete_level
+        iny 
+    ..incomplete_level
+        tya 
+        cmp.l required_krock_levels
+        bcs ..unlock
+        jmp .locked_play_sound
+    ..unlock
+        jmp .unlocked
+
+check_current_level_clear:
+        sta $5E
+        and #$000F
+        asl 
+        tax 
+        lda.l $BB817F,x
+        sta $60
+        lda $5E
+        lsr #4
+        asl 
+        tax 
+        lda.l $7E59F2,x
+        and $60
+        bne +
+        clc 
+        rts
+    +   
+        sec 
+        rts
+
+
+
+;###################################
+;# Draw map
+; $B5A919
+; credits text 80F946
+pushpc
+    org $B5D3E3
+        jsl draw_reward_map
+pullpc
+
+draw_reward_map:
+        jsl $B48368
+    .short
+        ldy $70
+        lda !reward_type
+        and #$0001
+        asl 
+        tax 
+        lda.l .tile_data,x
+        sta $0002,y
+        lda #$C8E8
+        sta $0000,y
+        tya 
+        clc 
+        adc #$0004
+        sta $70
+        tya 
+        and #$000C
+        tax 
+        tya 
+        lsr #4
+        and #$001F
+        tay 
+        lda.l $BEC985,x
+        ora $0400,y
+        sta $0400,y
+
+        lda $0512
+        and #$000F
+        cmp #$000F
+        bne .dont_toggle
+    .display_tracker
+        lda !display_message_is_tracker
+        bne .check_reward
+        lda $0510
+        and #$0030
+        beq .check_reward
+        lda #$0001
+        sta !display_message_is_tracker
+        lda #$0508
+        jsl $B58021
+    .check_reward
+        lda $0510
+        and #$2000
+        beq .dont_toggle
+        ldy #$052C
+        lda !reward_type
+        eor #$0001
+        sta !reward_type
+        beq ..sound
+        ldy #$051B
+    ..sound
+        tya 
+        jsl $B58021
+    .dont_toggle
+
+        rtl 
+
+    .tile_data
+        dw $3C00,$3C02
+
 
 ;#######################################################
 ;# Lock lost world
@@ -259,10 +538,6 @@ showdown_song_fix:
         jml $BB93F6
     .crisis_song
         jml $BB93FE
-
-        
-;#######################################################
-;# Draw sprites for tracking purposes
 
 
 pushpc

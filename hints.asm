@@ -1,6 +1,6 @@
 pushpc
 
-macro a()
+macro ba()
     ; Cranky: Galleon
     org $B4C7B1
         dw DATA_F71EDB
@@ -249,44 +249,44 @@ endmacro
         swanky_menu_galleon:
             dw $0008
             db "     Easy Quiz       - FREE", $00, $00
-            db "     Medium Quiz     - 1 COIN", $00, $00
-            db "     Hard Quiz       - 2 COINS", $00, $00
+            db "     Medium Quiz     - FREE", $00, $00
+            db "     Hard Quiz       - FREE", $00, $00
             ;db "     Easy Quiz 2     - FREE", $00, $00
             db "     Leave Studio", $00, $00
 
         swanky_menu_cauldron:
             dw $0008
             db "     Easy Quiz       - 1 COIN", $00, $00
-            db "     Medium Quiz     - 2 COINS", $00, $00
-            db "     Hard Quiz       - 3 COINS", $00, $00
+            db "     Medium Quiz     - 1 COIN", $00, $00
+            db "     Hard Quiz       - 1 COIN", $00, $00
             db "     Leave Studio", $00, $00
 
         swanky_menu_quay:
             dw $0008
             db "     Easy Quiz       - 1 COIN", $00, $00
-            db "     Medium Quiz     - 2 COINS", $00, $00
-            db "     Hard Quiz       - 3 COINS", $00, $00
+            db "     Medium Quiz     - 1 COIN", $00, $00
+            db "     Hard Quiz       - 1 COIN", $00, $00
             db "     Leave Studio", $00, $00
 
         swanky_menu_kremland:
             dw $0008
             db "     Easy Quiz       - 1 COIN", $00, $00
-            db "     Medium Quiz     - 2 COINS", $00, $00
-            db "     Hard Quiz       - 3 COINS", $00, $00
+            db "     Medium Quiz     - 1 COIN", $00, $00
+            db "     Hard Quiz       - 1 COIN", $00, $00
             db "     Leave Studio", $00, $00
 
         swanky_menu_gulch:
             dw $0008
             db "     Easy Quiz       - 1 COIN", $00, $00
-            db "     Medium Quiz     - 2 COINS", $00, $00
-            db "     Hard Quiz       - 3 COINS", $00, $00
+            db "     Medium Quiz     - 1 COIN", $00, $00
+            db "     Hard Quiz       - 1 COIN", $00, $00
             db "     Leave Studio", $00, $00
 
         swanky_menu_keep:
             dw $0008
             db "     Easy Quiz       - 1 COIN", $00, $00
-            db "     Medium Quiz     - 2 COINS", $00, $00
-            db "     Hard Quiz       - 3 COINS", $00, $00
+            db "     Medium Quiz     - 1 COIN", $00, $00
+            db "     Hard Quiz       - 1 COIN", $00, $00
             db "     Leave Studio", $00, $00
 
 
@@ -404,6 +404,40 @@ endmacro
         dw $0001
         dw $0001
         dw $0000
+
+    ; Swanky prices
+    org $B4CBB5
+        swanky_prices:
+            .gangplank_galleon:
+                dw $0000
+                dw $0000
+                dw $0000
+                dw $0000
+            .crocodile_cauldron:
+                dw $0001
+                dw $0001
+                dw $0001
+                dw $0000
+            .krem_quay:
+                dw $0001
+                dw $0001
+                dw $0001
+                dw $0000
+            .krazy_kremland:
+                dw $0001
+                dw $0001
+                dw $0001
+                dw $0000
+            .gloomy_gulch:
+                dw $0001
+                dw $0001
+                dw $0001
+                dw $0000
+            .krools_keep:
+                dw $0001
+                dw $0001
+                dw $0001
+                dw $0000
 
     ;# Expands action menu
 ;    org $B4CBB5

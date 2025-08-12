@@ -78,8 +78,7 @@ handle_dk_barrel_blink:
         sta $8E
         jml $B3937C
     .not_available
-        lda #$0000
-        sta $00,x
+        jsl $BB82B8
         jml $B39393
 
 ;#######################################################
@@ -824,9 +823,7 @@ handle_glimmer:
         sta $0989
         jml $B38EC3
     .not_available
-        ldx $64
-        lda #$0000
-        sta $00,x
+        jsl $BB82B8
         jml $B38EEE
 
 ;#######################################################
@@ -835,6 +832,8 @@ handle_glimmer:
 pushpc
     org $B3D98E
         jsl handle_clapper
+    org $B3D965
+        jsl handle_clapper_underwater
     org $B3D93B
         jsl handle_clapper_blink
 pullpc
@@ -852,6 +851,20 @@ handle_clapper:
     .not_available
         pla 
         rtl 
+
+    .underwater:
+        pha
+        lda !enable_clapper
+        and #$00FF
+        beq ..not_available
+        pla 
+        jsl $BEBE6D
+        rtl
+    ..not_available
+        clc 
+        pla 
+        rtl 
+
 
 handle_clapper_blink:
         ldx $64

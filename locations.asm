@@ -10,10 +10,102 @@ pushpc
         nop 
     org $B3D0F1
         jsl kloak_item_fix
+    org $BEC875
+        jsl banana_reward
+    org $BEBAF9
+        jsl kong_reward
+    org $BEBCA1
+        jsl second_kong_reward
+
+    org $B3C496
+        jsl second_balloon_reward
 pullpc
 
+kong_reward:
+        lda !reward_type
+        and #$0001
+        beq .normal_balloon
+        
+    .give_dk_barrel
+        lda #$0001
+        clc 
+        adc !enable_insta_dk_barrel
+        sta !enable_insta_dk_barrel
+        lda #$005A
+        sta !show_hit_counter
+        lda #$061B
+        jsl $B58003
+        rtl 
+
+    .normal_balloon
+        lda #$0001
+        jml $BEC64C
+
+second_kong_reward:
+        lda !reward_type
+        and #$0001
+        beq .normal_balloon
+        
+    .give_dk_barrel
+        rtl 
+
+    .normal_balloon
+        lda #$0001
+        jml $BEC63E
+
+banana_reward:
+        lda !reward_type
+        and #$0001
+        beq .normal_balloon
+        
+    .give_dk_barrel
+        lda #$0001
+        clc 
+        adc !enable_insta_dk_barrel
+        sta !enable_insta_dk_barrel
+        lda #$005A
+        sta !show_hit_counter
+        lda #$061B
+        jsl $B58003
+        rtl 
+
+    .normal_balloon
+        lda #$0001
+        jml $BEC659
+
+second_balloon_reward:
+        lda !reward_type
+        and #$0001
+        beq .normal_balloon
+        
+    .give_dk_barrel
+        rtl 
+
+    .normal_balloon
+        lda $42,x
+        jsl $BEC63E
+        rtl 
+
 balloon_locations:
+        lda !reward_type
+        and #$0001
+        beq .normal_balloon
+        
+    .give_dk_barrel
+        lda $42,x
+        clc 
+        adc !enable_insta_dk_barrel
+        sta !enable_insta_dk_barrel
+        lda #$005A
+        sta !show_hit_counter
+        jsl $BB82B8
+        bra .create_location
+
+    .normal_balloon
+        lda $42,x
         jsl $BEC64C
+
+    .create_location
         lda !at_kong_menu
         bne .skip
         lda $0AF0
@@ -30,9 +122,6 @@ balloon_locations:
         ora #$01
         sta.l !collectible_flags,x
         rep #$20
-        ;lda $D3
-        ;wdm 
-        ;rep #$20
         plx 
     .skip
         rtl 
